@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grade 8 Chemistry Reviewer App</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --accent-cyan: #06b6d4;
+      --accent-blue: #3b82f6;
+      --accent-gold: #f59e0b;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding-bottom: 50px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border-bottom: 2px solid var(--accent-cyan);
+      padding: 20px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    header p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 0 15px;
+    }
+
+    /* Dashboard & Cards */
+    .dashboard-summary {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 25px;
+      border: 1px solid var(--accent-blue);
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+    }
+
+    .stat-box h3 {
+      font-size: 1.8rem;
+      color: var(--accent-gold);
+    }
+
+    .stat-box p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .lesson-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      border: 1px solid var(--border-color);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .lesson-card:hover {
+      border-color: var(--accent-cyan);
+    }
+
+    .lesson-card h2 {
+      font-size: 1.2rem;
+      color: var(--accent-cyan);
+      margin-bottom: 8px;
+    }
+
+    .lesson-status {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .status-pending { background: #334155; color: var(--text-muted); }
+    .status-mastered { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      font-size: 0.9rem;
+    }
+
+    button:hover { opacity: 0.9; }
+
+    .btn-notes { background: var(--accent-blue); color: #fff; }
+    .btn-quiz { background: var(--accent-cyan); color: #0f172a; }
+    .btn-final { background: var(--accent-gold); color: #0f172a; width: 100%; padding: 15px; font-size: 1.1rem; }
+    .btn-back { background: #475569; color: #fff; flex: 0 0 auto; width: auto; margin-bottom: 15px; }
+
+    /* Content Views */
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+
+    .notes-content {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 25px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 20px;
+    }
+
+    .notes-content h2 { color: var(--accent-cyan); margin-bottom: 15px; }
+    .notes-content h3 { color: var(--accent-gold); margin: 15px 0 8px 0; font-size: 1.05rem; }
+    .notes-content p, .notes-content ul { margin-bottom: 12px; font-size: 0.95rem; }
+    .notes-content ul { padding-left: 20px; }
+
+    /* Tables in Notes */
+    .notes-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 0.85rem;
+    }
+
+    .notes-table th, .notes-table td {
+      border: 1px solid var(--border-color);
+      padding: 8px;
+      text-align: left;
+    }
+
+    .notes-table th { background: #0f172a; color: var(--accent-cyan); }
+
+    /* Quiz Panel */
+    .question-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    .question-card p { font-weight: 600; margin-bottom: 15px; }
+
+    .option-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: #0f172a;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 12px 15px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      font-weight: normal;
+    }
+
+    .option-btn:hover { border-color: var(--accent-cyan); background: #1e293b; }
+    .option-btn.selected { border-color: var(--accent-cyan); background: rgba(6, 182, 212, 0.15); }
+    .option-btn.correct-show { background: rgba(16, 185, 129, 0.2); border-color: var(--accent-green); color: #fff; }
+    .option-btn.incorrect-show { background: rgba(239, 68, 68, 0.2); border-color: var(--accent-red); color: #fff; }
+
+    .explanation-box {
+      display: none;
+      background: #0f172a;
+      border-left: 4px solid var(--accent-cyan);
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Score Results */
+    .results-card {
+      text-align: center;
+      background: var(--bg-card);
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid var(--accent-cyan);
+    }
+
+    .results-card h2 { color: var(--accent-gold); font-size: 2rem; margin-bottom: 10px; }
+
+    @media (max-width: 600px) {
+      .btn-group { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Grade 8 Chemistry Reviewer</h1>
+    <p>DepEd Science 8 • Interactive Mastery App</p>
+  </header>
+
+  <div class="container">
+
+    <!-- HOME / DASHBOARD VIEW -->
+    <div id="view-dashboard" class="view-panel active">
+      <div class="dashboard-summary">
+        <div class="stat-box">
+          <h3 id="stat-completed">0 / 7</h3>
+          <p>Lessons Mastered (≥80%)</p>
+        </div>
+        <div class="stat-box">
+          <h3 id="stat-attempts">0</h3>
+          <p>Total Quiz Retakes</p>
+        </div>
+      </div>
+
+      <div id="lessons-list"></div>
+
+      <div style="margin-top: 25px;">
+        <button class="btn-final" onclick="startFinalExam()">🏆 Take 35-Item Final Practice Exam</button>
+      </div>
+    </div>
+
+    <!-- NOTES VIEW -->
+    <div id="view-notes" class="view-panel">
+      <button class="btn-back" onclick="showDashboard()">← Back to Dashboard</button>
+      <div id="notes-container" class="notes-content"></div>
+    </div>
+
+    <!-- QUIZ VIEW -->
+    <div id="view-quiz" class="view-panel">
+      <button class="btn-back" onclick="showDashboard()">← Exit Quiz</button>
+      <h2 id="quiz-title" style="color: var(--accent-cyan); margin-bottom: 15px;"></h2>
+      <div id="quiz-questions-container"></div>
+      <button id="btn-submit-quiz" class="btn-quiz" style="width: 100%; padding: 15px; margin-top: 10px;" onclick="submitQuiz()">Submit & View Score</button>
+    </div>
+
+    <!-- RESULTS VIEW -->
+    <div id="view-results" class="view-panel">
+      <div class="results-card">
+        <h3 style="color: var(--text-muted); text-transform: uppercase;">Quiz Results</h3>
+        <h2 id="result-score">0%</h2>
+        <p id="result-message" style="margin-bottom: 20px; font-size: 1rem;"></p>
+        <button class="btn-quiz" onclick="showDashboard()" style="padding: 12px 25px; width: auto;">Return to Dashboard</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // DATA STORE: Lessons & Quizzes
+    const lessonsData = [
+      {
+        id: 1,
+        title: "Lesson 1: The Atomic Models",
+        notes: `
+          <h2>Lesson 1: The Atomic Models</h2>
+          <p><b>Chemistry:</b> The study of matter, its properties, composition, and changes.</p>
+          <p><b>Matter:</b> Anything that has mass and takes up space. Made of tiny particles called atoms.</p>
+          <h3>Building Blocks:</h3>
+          <ul>
+            <li><b>Element:</b> Fundamental substance in the Periodic Table.</li>
+            <li><b>Atom:</b> Smallest unit of an element. Measured in angstroms (1 Å = 1/10,000,000 mm).</li>
+            <li><b>Molecule/Compound:</b> 2+ bonded atoms (e.g., H₂O, CO₂).</li>
+          </ul>
+          <h3>Subatomic Particles:</h3>
+          <ul>
+            <li><b>Proton (p⁺):</b> Positive charge (+), inside the nucleus.</li>
+            <li><b>Neutron (n⁰):</b> No charge (0), inside the nucleus. Discovered by James Chadwick (1932).</li>
+            <li><b>Electron (e⁻):</b> Negative charge (-), orbits outside nucleus. Discovered by J.J. Thomson (1897).</li>
+          </ul>
+          <h3>Atomic Model Timeline:</h3>
+          <table class="notes-table">
+            <tr><th>Year / Scientist</th><th>Model</th><th>Key Discovery</th></tr>
+            <tr><td>460 BCE - Democritus</td><td>Atomos</td><td>Matter made of tiny indivisible particles. No experiments.</td></tr>
+            <tr><td>1803 - John Dalton</td><td>Solid Sphere</td><td>Elements combine in set amounts; atoms have specific mass.</td></tr>
+            <tr><td>1897 - J.J. Thomson</td><td>Plum Pudding</td><td>Discovered electrons embedded in positive sphere.</td></tr>
+            <tr><td>1911 - Ernest Rutherford</td><td>Nuclear Model</td><td>Gold Foil Experiment: Dense nucleus; atom is mostly empty space.</td></tr>
+            <tr><td>1913 - Niels Bohr</td><td>Planetary Model</td><td>Electrons move in fixed energy levels/orbits around nucleus.</td></tr>
+            <tr><td>1926 - Schrödinger & Heisenberg</td><td>Quantum Model</td><td>Electrons in wave-like clouds. Uncertainty principle.</td></tr>
+          </table>
+        `,
+        quiz: [
+          { q: "1. Scientists have proposed different atomic models as new evidence became available. Which statement best explains why the atomic model changed over time?", options: ["Scientists changed the model to make it easier to memorize.", "Scientists used new evidence to improve their explanations of atoms.", "Scientists discovered that atoms became larger over time.", "Scientists replaced earlier models because atoms stopped behaving as expected."], ans: 1, exp: "Scientific models evolve as new evidence and experimental findings emerge." },
+          { q: "2. A scientist studies an experiment in which most particles pass through a thin sheet of gold, while a few are deflected sharply. Which conclusion is best supported by these observations?", options: ["Electrons are embedded in a positively charged sphere.", "Electrons move in fixed energy levels around the nucleus.", "Atoms are solid spheres with no internal structure.", "Atoms have a small, dense nucleus and are mostly empty space."], ans: 3, exp: "Rutherford's Gold Foil experiment proved the presence of a small, dense nucleus and vast empty space." },
+          { q: "3. A student draws an atom with electrons moving around the nucleus in specific, fixed energy levels. Which atomic model does the drawing represent?", options: ["Bohr's planetary model", "Thomson's plum pudding model", "Rutherford's nuclear model", "Schrödinger's quantum model"], ans: 0, exp: "Niels Bohr proposed that electrons orbit the nucleus in fixed energy shells." },
+          { q: "4. Two models show electrons differently. Model X places electrons in fixed orbits, while Model Y represents them as clouds showing where electrons are likely to be found. Which explanation best compares the models?", options: ["Both models describe electrons as embedded in a positive sphere.", "Model X shows a nucleus, while Model Y removes the nucleus.", "Model X uses fixed energy levels, while Model Y uses probability clouds.", "Model X describes empty space, while Model Y describes a solid atom."], ans: 2, exp: "Model X is Bohr's planetary model (fixed orbits); Model Y is the Quantum mechanical model (probability clouds)." },
+          { q: "5. A student claims, 'The discovery of the electron proved that atoms are indivisible.' Which statement best evaluates this claim?", options: ["The claim is supported because electrons have no electric charge.", "The claim is incorrect because electrons are parts of atoms, showing that atoms have smaller components.", "The claim is supported because Dalton described atoms as solid spheres.", "The claim is incorrect because neutrons move outside the nucleus."], ans: 1, exp: "The discovery of subatomic particles (electrons) proved that atoms are divisible." }
+        ]
+      },
+      {
+        id: 2,
+        title: "Lesson 2: Subatomic Particles & Properties",
+        notes: `
+          <h2>Lesson 3: Subatomic Particles & Properties</h2>
+          <h3>Atomic Units:</h3>
+          <ul>
+            <li><b>Atomic Mass Unit (amu):</b> 1/12 the mass of carbon-12; equal to 1.66 × 10⁻²⁷ kg.</li>
+            <li><b>Electron Charge (e):</b> 1.602 × 10⁻¹⁹ C.</li>
+            <li><b>Angstrom (Å):</b> 10⁻¹⁰ m (used for atomic diameters).</li>
+          </ul>
+          <h3>Forces Holding the Atom Together:</h3>
+          <ul>
+            <li><b>Electrostatic / Electromagnetic Force:</b> Attractive force between positive nucleus and negative electrons keeping them in orbit.</li>
+            <li><b>Strong Nuclear Force:</b> Powerful short-range force binding protons and neutrons together inside the nucleus, overcoming proton repulsion.</li>
+            <li><b>Gravitational Force:</b> Negligible at the subatomic scale.</li>
+          </ul>
+        `,
+        quiz: [
+          { q: "1. A student compares the masses of a proton, neutron, and electron. The proton and neutron have nearly equal masses, while the electron has a much smaller mass. Which conclusion is best supported?", options: ["Electrons and protons have nearly equal masses.", "Protons and neutrons have nearly equal masses.", "Neutrons have much less mass than electrons.", "Electrons and neutrons have identical masses."], ans: 1, exp: "Protons and neutrons both have a mass of approximately 1 amu, whereas electrons have negligible mass (~0.0005 amu)." },
+          { q: "2. Two negatively charged electrons are near a positively charged nucleus. Which explanation best describes why the electrons are attracted to the nucleus?", options: ["Gravity pulls the electrons toward the nucleus.", "The strong nuclear force attracts electrons to protons.", "The electrons and nucleus have charges of the same sign.", "The electromagnetic force attracts opposite charges."], ans: 3, exp: "Electromagnetic force causes opposite electric charges (positive protons and negative electrons) to attract." },
+          { q: "3. Scientists study a nucleus containing several protons. Because protons have positive charges, they repel one another. However, the nucleus remains bound together. Which explanation best accounts for this?", options: ["The strong nuclear force binds particles inside the nucleus.", "Gravitational force prevents the protons from moving apart.", "The electromagnetic force makes all protons attract one another.", "The electrons pull the protons together inside the nucleus."], ans: 0, exp: "The strong nuclear force overcomes the electromagnetic repulsion between positive protons inside the nucleus." },
+          { q: "4. A researcher measures the distance across an atom. The measured diameter is 2 Å. Given that 1 Å = 10⁻¹⁰ m, what is the diameter in meters?", options: ["2 × 10⁻¹² m", "2 × 10¹⁰ m", "2 × 10⁻¹⁰ m", "2 × 10⁻¹¹ m"], ans: 2, exp: "Direct conversion: 2 × 1 Å = 2 × 10⁻¹⁰ meters." },
+          { q: "5. A student claims that gravity is the main force holding an atom together. Which statement best evaluates this claim?", options: ["The claim is correct because gravity binds both the nucleus and electrons.", "The claim is incorrect because electrical and nuclear forces dominate at the atomic scale.", "The claim is correct because gravity is stronger than electrical forces at short distances.", "The claim is incorrect because gravity does not act on subatomic particles."], ans: 1, exp: "Gravity is extremely weak at the subatomic scale and negligible compared to electrical and nuclear forces." }
+        ]
+      },
+      {
+        id: 3,
+        title: "Lesson 3: Pure Substances & Mixtures",
+        notes: `
+          <h2>Lesson 4: Pure Substances & Mixtures</h2>
+          <p><b>Pure Substance:</b> Matter with fixed chemical composition that cannot be separated by physical means.</p>
+          <p><b>Mixture:</b> Combination of two or more substances physically combined; components retain their properties.</p>
+          <table class="notes-table">
+            <tr><th>Category</th><th>Sub-Category</th><th>Key Characteristics</th><th>Examples</th></tr>
+            <tr><td>Pure Substance</td><td>Element</td><td>Simplest matter, 1 type of atom.</td><td>Carbon, Gold, Oxygen</td></tr>
+            <tr><td>Pure Substance</td><td>Compound</td><td>Chemically combined elements in fixed ratio.</td><td>Water (H₂O), Salt (NaCl)</td></tr>
+            <tr><td>Mixture</td><td>Homogeneous</td><td>Uniform composition throughout.</td><td>Air, Salt water, Vinegar</td></tr>
+            <tr><td>Mixture</td><td>Heterogeneous</td><td>Non-uniform composition; visible parts.</td><td>Oil & water, Pizza, Salad</td></tr>
+          </table>
+        `,
+        quiz: [
+          { q: "1. Two samples are collected: solid ice and water vapor. Both contain particles made of two hydrogen atoms chemically combined with one oxygen atom. Which conclusion is best supported?", options: ["The samples are different substances because of different physical states.", "The samples have the same chemical composition despite different physical states.", "The samples are mixtures because their particles behave differently.", "The samples have different chemical compositions because their appearances differ."], ans: 1, exp: "Physical phase changes do not alter the chemical identity/formula of a pure compound." },
+          { q: "2. A student prepares three samples: pure salt, salt dissolved in water, and sand mixed with water. Which classification is correct?", options: ["Pure substance, heterogeneous mixture, homogeneous mixture", "Homogeneous mixture, pure substance, heterogeneous mixture", "Pure substance, homogeneous mixture, heterogeneous mixture", "Heterogeneous mixture, homogeneous mixture, pure substance"], ans: 2, exp: "Salt = Compound (Pure); Saltwater = Uniform solution (Homogeneous); Sand & water = Non-uniform (Heterogeneous)." },
+          { q: "3. A student claims that a clear liquid from two containers must be the same pure substance because both look identical. Which evidence best evaluates this claim?", options: ["Compare their boiling points under the same conditions to check for constant boiling point.", "Compare their colors under different lighting conditions.", "Compare the shapes of their containers.", "Compare the containers' labels."], ans: 0, exp: "Pure substances have fixed physical properties like constant boiling points." },
+          { q: "4. A manufacturer needs a material for computer chips. Sample X contains only silicon atoms, while Sample Y contains silicon physically mixed with other substances. Which conclusion is supported?", options: ["Both samples are elements.", "Sample Y is a compound.", "Sample X is a mixture.", "Sample X is an element and is the more suitable choice."], ans: 3, exp: "Pure silicon is an element made of one type of atom, essential for semiconductors." },
+          { q: "5. A student mixes two clear liquids and observes that the sample has the same composition throughout. The student concludes it must be a pure substance. Evaluate this conclusion.", options: ["Correct because uniform composition is unique to pure substances.", "Incorrect because a homogeneous mixture can also have uniform composition.", "Correct because clear liquids contain only one type of particle.", "Incorrect because all mixtures separate into visible layers."], ans: 1, exp: "Homogeneous mixtures (solutions) also possess a uniform composition throughout." }
+        ]
+      },
+      {
+        id: 4,
+        title: "Lesson 4: History of the Periodic Table",
+        notes: `
+          <h2>Lesson 5: History of the Periodic Table</h2>
+          <p><b>Modern Periodic Law:</b> Properties of elements vary periodically with their <i>atomic number</i> (number of protons).</p>
+          <h3>Historical Timeline:</h3>
+          <ul>
+            <li><b>Antoine Lavoisier (1729):</b> First list of 33 elements (gases, non-metals, metals, earths).</li>
+            <li><b>Wolfgang Döbereiner (1817):</b> Triads (groups of 3 elements with similar properties).</li>
+            <li><b>John Newlands (1863):</b> Law of Octaves (properties repeated every 8th element by mass).</li>
+            <li><b>Dmitri Mendeleev (1869):</b> Father of Periodic Table; arranged by atomic mass and left blank gaps for undiscovered elements.</li>
+            <li><b>Henry Moseley (1914):</b> Arranged table by <b>Atomic Number</b> (protons), fixing inconsistencies.</li>
+          </ul>
+        `,
+        quiz: [
+          { q: "1. Two scientists study elements to organize them so that similar properties can be compared. Which approach best supports their goal?", options: ["Group elements according to discovery dates.", "Arrange elements according to country found.", "Use the periodic table to organize elements and compare their properties.", "List elements according to home/industrial uses."], ans: 2, exp: "The periodic table organizes elements systematically based on physical and chemical trends." },
+          { q: "2. Newlands arranged elements by increasing atomic mass, while Moseley used atomic number. Why was Moseley's arrangement an improvement?", options: ["It corrected inconsistencies by arranging elements according to number of protons.", "It grouped elements by year discovered.", "It allowed arrangement by physical state.", "It removed the need to compare properties."], ans: 0, exp: "Moseley discovered atomic number (protons), resolving anomalies caused by atomic mass." },
+          { q: "3. Mendeleev left blank spaces in his periodic table for undiscovered elements. Later, discovered elements matched his predictions. What does this prove?", options: ["All elements were identified before Mendeleev.", "Patterns in element properties can help scientists predict undiscovered elements.", "Elements must be arranged by uses rather than properties.", "Atomic mass alone identifies every property."], ans: 1, exp: "Periodic trends allow accurate predictions of missing element properties." },
+          { q: "4. An element box on the periodic table shows the number 12 as the atomic number. What can be concluded?", options: ["It has 12 neutrons in its nucleus.", "It has 12 electrons in every form.", "It contains 12 protons in its nucleus.", "It has an atomic mass of 12 amu."], ans: 2, exp: "Atomic Number (Z) is strictly equal to the number of protons." },
+          { q: "5. An engineer suggests choosing electronic elements by examining their properties on the periodic table. Evaluate this suggestion.", options: ["Bad idea because names reveal properties.", "Bad idea because table records discovery dates.", "Both equal.", "Better choice because the table helps identify elements with useful periodic properties."], ans: 3, exp: "The periodic table visually groups elements with shared electrical and chemical behaviors." }
+        ]
+      },
+      {
+        id: 5,
+        title: "Lesson 5: First 20 Elements & Properties",
+        notes: `
+          <h2>Lesson 6: First 20 Elements</h2>
+          <p>The first 20 elements are the "alphabet of chemistry."</p>
+          <h3>Property Classifications:</h3>
+          <ul>
+            <li><b>Metals:</b> Shiny, malleable, ductile, good conductors. Lose electrons easily.</li>
+            <li><b>Nonmetals:</b> Dull, brittle, poor conductors. Gain electrons easily.</li>
+            <li><b>Metalloids:</b> Share properties of both; act as semiconductors (e.g., Silicon).</li>
+          </ul>
+          <h3>Naming Clues:</h3>
+          <ul>
+            <li><b>-gen</b> (Hydrogen, Oxygen): Nonmetal gases.</li>
+            <li><b>-ine</b> (Fluorine, Chlorine): Reactive halogens.</li>
+            <li><b>-on</b> (Neon, Argon): Inert noble gases.</li>
+            <li><b>-ium</b> (Sodium, Calcium): Reactive metals.</li>
+          </ul>
+        `,
+        quiz: [
+          { q: "1. Element X has atomic number 11, Y has 12, Z has 18. Which conclusion is best supported?", options: ["X and Y have the same number of protons.", "Y and Z have the same chemical identity.", "X and Z are both metals.", "X and Y have different numbers of protons."], ans: 3, exp: "Atomic numbers (11 vs 12) indicate different proton counts and distinct element identities." },
+          { q: "2. A student needs a material for electrical wire that is easy to shape into thin strands (ductile). Best choice?", options: ["Sulfur, because it is a poor conductor.", "Neon, because it is an unreactive gas.", "Copper, because it conducts electricity and is ductile.", "Silicon, because it is a metalloid."], ans: 2, exp: "Copper is a metal with high electrical conductivity and ductility." },
+          { q: "3. Element P is shiny & conductive. Q is dull & brittle. R shares properties of both. How are they classified?", options: ["P – Metal; Q – Nonmetal; R – Metalloid", "P – Metalloid; Q – Metal; R – Nonmetal", "P – Nonmetal; Q – Metalloid; R – Metal", "P – Metal; Q – Metalloid; R – Nonmetal"], ans: 0, exp: "P fits metals, Q fits nonmetals, and R fits metalloids." },
+          { q: "4. A student claims 'All elements ending in -on are highly reactive gases.' Evaluate using neon and argon.", options: ["Supported because gases react easily.", "Not supported because neon and argon are noble gases that are unreactive.", "Supported because gases gain electrons.", "Not supported because they are metals."], ans: 1, exp: "Elements ending in -on like Neon and Argon are inert Noble Gases (Group 18)." },
+          { q: "5. A lab needs a gas to prevent unwanted chemical reactions inside a container. Which element is recommended?", options: ["Use sodium because it reacts rapidly.", "Use potassium because it reacts with water.", "Use argon because it is an unreactive noble gas.", "Use fluorine because it is reactive."], ans: 2, exp: "Argon is an inert noble gas used to create non-reactive shielding environments." }
+        ]
+      },
+      {
+        id: 6,
+        title: "Lesson 6: Periods & Groups of Elements",
+        notes: `
+          <h2>Lesson 7: Periods and Groups</h2>
+          <p><b>Periods:</b> 7 horizontal rows. Corresponds to number of electron shells.</p>
+          <p><b>Groups (Families):</b> 18 vertical columns. Elements share similar chemical properties because they have the same number of <b>valence electrons</b>.</p>
+          <h3>Major Groups:</h3>
+          <ul>
+            <li><b>Group 1: Alkali Metals:</b> Highly reactive metals.</li>
+            <li><b>Group 2: Alkaline Earth Metals:</b> Reactive metals.</li>
+            <li><b>Groups 3–12: Transition Metals:</b> Hard, shiny conductors.</li>
+            <li><b>Group 17: Halogens:</b> Highly reactive nonmetals.</li>
+            <li><b>Group 18: Noble Gases:</b> Unreactive/Inert gases.</li>
+          </ul>
+        `,
+        quiz: [
+          { q: "1. Two elements are in the same vertical column (group). Which conclusion is best supported?", options: ["They have the same number of valence electrons and similar chemical properties.", "They have the same number of electron shells.", "They have the same atomic mass.", "They have the same number of protons."], ans: 0, exp: "Group elements share valence electron counts and chemical behavior." },
+          { q: "2. Element X is at the top of Group 1, while Element Y is farther down. Predict Y's properties relative to X.", options: ["Element Y has a smaller atomic size and lower reactivity.", "Element Y has a larger atomic size and lower reactivity.", "Element Y has a smaller atomic size and higher reactivity.", "Element Y has a larger atomic size and higher metal reactivity."], ans: 3, exp: "In metal groups, atomic radius and metallic reactivity INCREASE as you move down the column." },
+          { q: "3. A scientist needs an unreactive gas for an experiment. Which group should they choose from?", options: ["Group 1", "Group 18", "Group 17", "Groups 3–12"], ans: 1, exp: "Group 18 consists of stable, unreactive Noble Gases." },
+          { q: "4. A student claims elements in the same period have similar properties because they have the same electron shells. Evaluate.", options: ["Correct because period elements have identical valence electrons.", "Correct because all belong to same family.", "Incorrect because elements in a period have same shell count, but valence electrons differ.", "Incorrect because shell counts differ."], ans: 2, exp: "Periods share shell counts, but valence electrons increase across the row, changing chemical behavior." },
+          { q: "5. An element is located in Period 3, Group 17. What can be concluded?", options: ["It has 3 valence electrons.", "It belongs to the halogen family and is reactive.", "It belongs to noble gases.", "It is an alkaline earth metal."], ans: 1, exp: "Group 17 elements are Halogens." }
+        ]
+      },
+      {
+        id: 7,
+        title: "Lesson 7: Finding Protons, Neutrons, & Electrons",
+        notes: `
+          <h2>Lesson 9: Determining Subatomic Particles</h2>
+          <p><b>Atomic Number (Z):</b> Equal to Protons (p⁺). Defines the element.</p>
+          <p><b>Neutral Atom Rule:</b> Protons (p⁺) = Electrons (e⁻).</p>
+          <p><b>Mass Number (A):</b> Protons (p⁺) + Neutrons (n⁰).</p>
+          <h3>Calculation Formulas:</h3>
+          <ul>
+            <li><b>Protons</b> = Atomic Number (Z)</li>
+            <li><b>Electrons</b> = Protons (in neutral atom)</li>
+            <li><b>Neutrons</b> = Mass Number (A) - Atomic Number (Z)</li>
+          </ul>
+          <p><i>Note: Always round decimal atomic mass to the nearest whole number before subtracting!</i></p>
+        `,
+        quiz: [
+          { q: "1. A neutral atom has atomic number 12 and mass number 24. Find p⁺, n⁰, and e⁻.", options: ["12 protons, 24 neutrons, 12 electrons", "24 protons, 12 neutrons, 24 electrons", "12 protons, 12 neutrons, 12 electrons", "12 protons, 12 neutrons, 24 electrons"], ans: 2, exp: "p⁺ = 12; e⁻ = 12; n⁰ = 24 - 12 = 12." },
+          { q: "2. Two neutral atoms of the same element have the same atomic number but different mass numbers. What differs?", options: ["Number of protons", "Number of neutrons", "Number of electrons", "Element identity"], ans: 1, exp: "Atoms of the same element with different mass numbers are isotopes; they differ in neutron count." },
+          { q: "3. A student claims an atom with Z=17 and A=35 has 18 neutrons and 17 electrons. Evaluate.", options: ["Both values incorrect.", "Only neutron count correct.", "Only electron count correct.", "Both values are correct because n⁰ = 35 - 17 = 18 and e⁻ = p⁺ = 17."], ans: 3, exp: "n⁰ = 35 - 17 = 18; e⁻ = Z = 17." },
+          { q: "4. An element has atomic mass 23.0 and atomic number 11. Find neutrons and neutral electrons.", options: ["12 neutrons and 11 electrons", "11 neutrons and 12 electrons", "23 neutrons and 11 electrons", "12 neutrons and 12 electrons"], ans: 0, exp: "e⁻ = 11; n⁰ = 23 - 11 = 12." },
+          { q: "5. A neutral atom has mass number 40 and contains 22 neutrons. What is its atomic number & electron count?", options: ["Z = 22, 40 protons, 18 electrons", "Z = 40, 22 protons, 18 electrons", "Atomic number 18, with 18 protons and 18 electrons", "Z = 18, 22 protons, 22 electrons"], ans: 2, exp: "Atomic Number (Z) = 40 - 22 = 18. Therefore, p⁺ = 18 and e⁻ = 18." }
+        ]
+      }
+    ];
+
+    // APP STATE & STORAGE
+    let userProgress = JSON.parse(localStorage.getItem('chem8_progress')) || {
+      completed: {},
+      totalRetakes: 0
+    };
+
+    let currentQuizQuestions = [];
+    let currentQuizLessonId = null;
+    let selectedAnswers = {};
+
+    // INITIALIZATION
+    window.onload = function() {
+      renderDashboard();
+    };
+
+    function saveProgress() {
+      localStorage.setItem('chem8_progress', JSON.stringify(userProgress));
+    }
+
+    function renderDashboard() {
+      const listContainer = document.getElementById('lessons-list');
+      listContainer.innerHTML = '';
+
+      let masteredCount = 0;
+
+      lessonsData.forEach(lesson => {
+        const score = userProgress.completed[lesson.id];
+        const isMastered = score !== undefined && score >= 80;
+        if (isMastered) masteredCount++;
+
+        const card = document.createElement('div');
+        card.className = 'lesson-card';
+        card.innerHTML = `
+          <h2>${lesson.title}</h2>
+          <span class="lesson-status ${isMastered ? 'status-mastered' : 'status-pending'}">
+            ${score !== undefined ? `Best Score: ${score}\%${isMastered ? '🏆 (Mastered)' : ''}` : 'Not Attempted'}
+          </span>
+          <div class="btn-group">
+            <button class="btn-notes" onclick="openNotes(${lesson.id})">📖 Read Notes</button>
+            <button class="btn-quiz" onclick="startQuiz(${lesson.id})">📝 Take Practice Quiz</button>
+          </div>
+        `;
+        listContainer.appendChild(card);
+      });
+
+      document.getElementById('stat-completed').innerText = `${masteredCount} / 7`;
+      document.getElementById('stat-attempts').innerText = userProgress.totalRetakes;
+    }
+
+    function showView(viewId) {
+      document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
+      document.getElementById(viewId).classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    function showDashboard() {
+      renderDashboard();
+      showView('view-dashboard');
+    }
+
+    function openNotes(lessonId) {
+      const lesson = lessonsData.find(l => l.id === lessonId);
+      document.getElementById('notes-container').innerHTML = lesson.notes;
+      showView('view-notes');
+    }
+
+    // QUIZ LOGIC
+    function startQuiz(lessonId) {
+      currentQuizLessonId = lessonId;
+      selectedAnswers = {};
+      const lesson = lessonsData.find(l => l.id === lessonId);
+      
+      document.getElementById('quiz-title').innerText = `${lesson.title} - Practice Quiz`;
+      
+      // Clone and shuffle options slightly for practice variety
+      currentQuizQuestions = JSON.parse(JSON.stringify(lesson.quiz));
+      renderQuizQuestions();
+      showView('view-quiz');
+    }
+
+    function startFinalExam() {
+      currentQuizLessonId = 'FINAL';
+      selectedAnswers = {};
+      document.getElementById('quiz-title').innerText = `35-Item Cumulative Final Practice Exam`;
+      
+      // Combine all 35 questions
+      currentQuizQuestions = [];
+      lessonsData.forEach(l => {
+        currentQuizQuestions.push(...JSON.parse(JSON.stringify(l.quiz)));
+      });
+
+      renderQuizQuestions();
+      showView('view-quiz');
+    }
+
+    function renderQuizQuestions() {
+      const container = document.getElementById('quiz-questions-container');
+      container.innerHTML = '';
+
+      currentQuizQuestions.forEach((item, index) => {
+        const qCard = document.createElement('div');
+        qCard.className = 'question-card';
+        qCard.id = `q-card-${index}`;
+
+        let optionsHTML = '';
+        item.options.forEach((opt, optIndex) => {
+          optionsHTML += `
+            <button class="option-btn" id="opt-${index}-${optIndex}" onclick="selectOption(${index}, ${optIndex})">
+              ${String.fromCharCode(65 + optIndex)}. ${opt}
+            </button>
+          `;
+        });
+
+        qCard.innerHTML = `
+          <p>${index + 1}. ${item.q.replace(/^\d+\.\s*/, '')}</p>
+          <div>${optionsHTML}</div>
+          <div class="explanation-box" id="exp-${index}">
+            <b>Explanation:</b> ${item.exp}
+          </div>
+        `;
+        container.appendChild(qCard);
+      });
+    }
+
+    function selectOption(qIndex, optIndex) {
+      selectedAnswers[qIndex] = optIndex;
+      
+      // Highlight selection
+      const options = document.querySelectorAll(`#q-card-${qIndex} .option-btn`);
+      options.forEach(btn => btn.classList.remove('selected'));
+      document.getElementById(`opt-${qIndex}-${optIndex}`).classList.add('selected');
+    }
+
+    function submitQuiz() {
+      if (Object.keys(selectedAnswers).length < currentQuizQuestions.length) {
+        if (!confirm("You have unanswered questions. Are you sure you want to submit?")) {
+          return;
+        }
+      }
+
+      let correctCount = 0;
+
+      currentQuizQuestions.forEach((item, index) => {
+        const selected = selectedAnswers[index];
+        const options = document.querySelectorAll(`#q-card-${index} .option-btn`);
+
+        options.forEach(btn => btn.disabled = true); // Disable further picks
+
+        if (selected !== undefined) {
+          if (selected === item.ans) {
+            correctCount++;
+            document.getElementById(`opt-${index}-${selected}`).classList.add('correct-show');
+          } else {
+            document.getElementById(`opt-${index}-${selected}`).classList.add('incorrect-show');
+            document.getElementById(`opt-${index}-${item.ans}`).classList.add('correct-show');
+          }
+        } else {
+          document.getElementById(`opt-${index}-${item.ans}`).classList.add('correct-show');
+        }
+
+        // Show explanation
+        document.getElementById(`exp-${index}`).style.display = 'block';
+      });
+
+      const scorePercent = Math.round((correctCount / currentQuizQuestions.length) * 100);
+
+      // Save stats
+      userProgress.totalRetakes++;
+      if (currentQuizLessonId !== 'FINAL') {
+        const prevBest = userProgress.completed[currentQuizLessonId] || 0;
+        if (scorePercent > prevBest) {
+          userProgress.completed[currentQuizLessonId] = scorePercent;
+        }
+      }
+      saveProgress();
+
+      // Show Results View
+      document.getElementById('result-score').innerText = `${correctCount} / ${currentQuizQuestions.length} (${scorePercent}%)`;
+      document.getElementById('result-message').innerText = scorePercent >= 80 
+        ? "🎉 Outstanding! You have achieved mastery in this topic." 
+        : "💪 Good effort! Review the explanations above and take the quiz again to reach 100% mastery.";
+
+      showView('view-results');
+    }
+  </script>
+</body>
+</html>
